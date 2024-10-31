@@ -1,0 +1,28 @@
+{
+  "framebuffers": {
+    "temp": {
+      "depth": true,
+      "format": "RGB8"
+    }
+  },
+  "stages": [
+    {
+      "type": "veil:blit",
+      "shader": "create_plus_plus:projector_blur",
+      "in": "create_plus_plus:projector_results",
+      "out": "create_plus_plus:projector_final_results"
+    },
+    {
+      "type": "veil:blit",
+      "shader": "create_plus_plus:projector_mix",
+      "in": "veil:post",
+      "out": "temp"
+    },
+    {
+      "type": "veil:copy",
+      "in": "temp",
+      "out": "veil:post"
+    }
+  ],
+  "priority": 1000
+}

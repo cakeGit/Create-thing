@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "uk.cak.cpp.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "client.MinecraftMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
