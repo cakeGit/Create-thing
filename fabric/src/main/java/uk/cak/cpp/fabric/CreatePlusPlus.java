@@ -20,7 +20,6 @@ public class CreatePlusPlus implements ModInitializer {
         CppBlocks.register();
         CppBlockEntities.register();
         CppCreativeModeTabs.register();
-        CreatePlusPlusClient.register();
         REGISTRATE.register();
     }
     

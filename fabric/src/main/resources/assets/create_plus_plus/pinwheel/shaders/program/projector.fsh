@@ -91,11 +91,33 @@ void main() {
 
         float projectorDepth = texture(ProjectionDepthSampler, projectorSpace).r;
         float currentDepth = toDepthInProjectorDepthSpace(pos);
-        float difference = (projectorDepth - currentDepth) * ProjectorPlaneFar * ProjectorPlaneFar;
+        float difference = (projectorDepth - currentDepth) * ProjectorPlaneFar;
 
-        float strength = 100 * (1 - (difference*difference) / 10);
+        bool fullOcclusion = true;
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                if (x == 0 && y == 0) continue;
+                if (texture(ProjectionDepthSampler, projectorSpace + projectorOneTexel * vec2(x, y)).r > currentDepth) {
+                    fullOcclusion = false;
+                }
+            }
+        }
 
-        strength /= (distanceFromOrigin * distanceFromOrigin) / 10;
+        float strength;
+        if (difference < 0) {
+            if (!fullOcclusion) {
+                difference /= 100;
+            } else {
+                difference *= 10;
+            }
+            float scale = 0.5f/ProjectorPlaneFar;
+            strength = (scale - abs(difference)) / scale;
+            strength = min(strength, 1);
+        } else {
+            strength = 1;
+        }
+        strength *= 100;
+        strength /= distanceFromOrigin;
 
         if (strength > 0f) {
             fragColor = max(original, original + (vec4(0.04f, 0.02f, 0.1f, 1.0f) * strength));

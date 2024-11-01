@@ -17,6 +17,12 @@
   "entrypoints": {
     "main": [
       "uk.cak.cpp.fabric.CreatePlusPlus"
+    ],
+    "fabric-datagen": [
+      "uk.cak.cpp.fabric.CppData"
+    ],
+    "client": [
+      "uk.cak.cpp.fabric.CreatePlusPlusClient"
     ]
   },
   "mixins": [

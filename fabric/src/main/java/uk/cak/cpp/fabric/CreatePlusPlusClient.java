@@ -4,16 +4,18 @@ import foundry.veil.api.client.render.VeilRenderer;
 import foundry.veil.api.client.render.post.PostPipeline;
 import foundry.veil.fabric.event.FabricVeilPostProcessingEvent;
 import foundry.veil.fabric.event.FabricVeilRendererEvent;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import uk.cak.cpp.fabric.system.projector.ProjectorRenderSystem;
 
-public class CreatePlusPlusClient {
+public class CreatePlusPlusClient implements ClientModInitializer {
     
     public static final ProjectorRenderSystem PROJECTOR_RENDER = new ProjectorRenderSystem();
     
-    public static void register() {
+    @Override
+    public void onInitializeClient() {
         FabricVeilPostProcessingEvent.PRE.register(CreatePlusPlusClient::onVeilPostProcessingRender);
         FabricVeilRendererEvent.EVENT.register(CreatePlusPlusClient::onClientSetup);
         ClientTickEvents.START_CLIENT_TICK.register(CreatePlusPlusClient::onClientTick);
@@ -30,5 +32,6 @@ public class CreatePlusPlusClient {
     public static void onClientSetup(VeilRenderer renderer) {
         PROJECTOR_RENDER.onVeilRenderer();
     }
+    
     
 }

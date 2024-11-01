@@ -105,9 +105,14 @@ public class ProjectorRenderSystem {
         }
         
         ShaderProgram mixShader = VeilRenderSystem.setShader(CreatePlusPlus.asResource("projector_mix"));
-        AdvancedFbo projector_results = framebufferManager.getFramebuffer(PROJECTOR_FINAL_RESULTS);
+        AdvancedFbo projector_results = framebufferManager.getFramebuffer(PROJECTOR_RESULTS);
         if (mixShader != null) {
             mixShader.addSampler("ProjectorLightSampler", projector_results.getColorTextureAttachment(0).getId());
+        }
+        ShaderProgram blurShader = VeilRenderSystem.setShader(CreatePlusPlus.asResource("projector_blur"));
+        AdvancedFbo projector_final_results = framebufferManager.getFramebuffer(PROJECTOR_FINAL_RESULTS);
+        if (blurShader != null) {
+            blurShader.addSampler("ProjectorLightSampler", projector_final_results.getColorTextureAttachment(0).getId());
         }
     }
     

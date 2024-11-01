@@ -8,13 +8,13 @@
   "stages": [
     {
       "type": "veil:blit",
-      "shader": "create_plus_plus:projector_blur",
-      "in": "create_plus_plus:projector_results",
+      "shader": "create_plus_plus:projector_mix",
+      "in": "veil:post",
       "out": "create_plus_plus:projector_final_results"
     },
     {
       "type": "veil:blit",
-      "shader": "create_plus_plus:projector_mix",
+      "shader": "create_plus_plus:projector_blur",
       "in": "veil:post",
       "out": "temp"
     },
