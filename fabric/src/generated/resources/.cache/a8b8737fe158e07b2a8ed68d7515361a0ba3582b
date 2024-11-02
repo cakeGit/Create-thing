@@ -1,0 +1,15 @@
+// 1.20.1	2024-11-02T00:09:39.2535206	Create++/Registrate Provider for create_plus_plus [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
+c9228101fba6578c9e4008707b7e540cb24938b8 data\create_plus_plus\loot_tables\blocks\gimbal_axis.json
+de3a523448533e6e00aee9f08ac6740c4334ee8a data\create_plus_plus\loot_tables\blocks\projector.json
+8a4b517762cf4f2cea586c510822ecb08c716720 data\create_plus_plus\loot_tables\blocks\mounted_cannon.json
+99f7e49c38385a792c4c6e55a3b36d61bfd53daf assets\create_plus_plus\blockstates\gimbal_fluid_mount.json
+69e903561b0d78d25a25dfd80805f9c85e125c32 assets\create_plus_plus\blockstates\gimbal_axis.json
+0c08f22e480d43c2588b660729fc31bd9ad332e8 assets\create_plus_plus\lang\en_ud.json
+896e9a1557f4098041e353cde13af8df51b03938 assets\create_plus_plus\models\item\projector.json
+fba947d9a737974808603381bf1e23459f3a3e0f assets\create_plus_plus\models\item\mounted_cannon.json
+cac5c7948810e48b5b887dc22513e2ceea015836 assets\create_plus_plus\blockstates\projector.json
+67ef0ec3ca465e8e5469e3eb97cb2dd002ef920f assets\create_plus_plus\lang\en_us.json
+42f124779500dfd79e8b80a15b71701e4ad4799e assets\create_plus_plus\blockstates\mounted_cannon.json
+5a62b1349e68508d11f19d4e7830839fdcce81a3 data\create_plus_plus\loot_tables\blocks\gimbal_fluid_mount.json
+f3316ee96bbce13cf6fc16c28cce8b48216c5efa assets\create_plus_plus\models\item\gimbal_axis.json
+3247e31b52c6ea5099886f832f0eecf03de41981 assets\create_plus_plus\models\block\projector.json

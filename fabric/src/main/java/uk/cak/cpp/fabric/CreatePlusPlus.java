@@ -1,12 +1,11 @@
 package uk.cak.cpp.fabric;
 
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.ResourceLocation;
 import uk.cak.cpp.ExampleMod;
-import net.fabricmc.api.ModInitializer;
-import uk.cak.cpp.fabric.registry.CppBlockEntities;
-import uk.cak.cpp.fabric.registry.CppBlocks;
-import uk.cak.cpp.fabric.registry.CppCreativeModeTabs;
+import uk.cak.cpp.fabric.foundation.network.CppPackets;
+import uk.cak.cpp.fabric.registry.*;
 
 public class CreatePlusPlus implements ModInitializer {
     
@@ -20,6 +19,10 @@ public class CreatePlusPlus implements ModInitializer {
         CppBlocks.register();
         CppBlockEntities.register();
         CppCreativeModeTabs.register();
+        CppPartialModels.register();
+        CppParticleEmitters.register();
+        CppPackets.registerPackets();
+        CppPackets.getChannel().initServerListener();
         REGISTRATE.register();
     }
     

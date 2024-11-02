@@ -3,6 +3,7 @@ package uk.cak.cpp.fabric.registry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import uk.cak.cpp.fabric.content.gimbal.actors.mounted_cannon.MountedCannonBlock;
 import uk.cak.cpp.fabric.content.gimbal.actors.projector.ProjectorBlock;
+import uk.cak.cpp.fabric.content.gimbal.components.fluid_mount.GimbalFluidMountBlock;
 import uk.cak.cpp.fabric.content.gimbal.components.gimbal_axis.GimbalAxisBlock;
 
 import static uk.cak.cpp.fabric.CreatePlusPlus.REGISTRATE;
@@ -12,6 +13,14 @@ public class CppBlocks {
     public static final BlockEntry<ProjectorBlock> PROJECTOR = REGISTRATE
         .block("projector", ProjectorBlock::new)
         .simpleItem()
+        .register();
+    
+    public static final BlockEntry<GimbalFluidMountBlock> GIMBAL_FLUID_MOUNT = REGISTRATE
+        .block("gimbal_fluid_mount", GimbalFluidMountBlock::new)
+        .properties(p -> p.noOcclusion())
+        .blockstate((ctx, prov) -> {
+            prov.directionalBlock(ctx.get(), prov.models().getExistingFile(prov.modLoc("block/gimbal/gimbal_fluid_mount")));
+        })
         .register();
     
     public static final BlockEntry<GimbalAxisBlock> GIMBAL_AXIS = REGISTRATE
@@ -26,8 +35,13 @@ public class CppBlocks {
         })
         .build()
         .register();
+    
     public static final BlockEntry<MountedCannonBlock> MOUNTED_CANNON = REGISTRATE
         .block("mounted_cannon", MountedCannonBlock::new)
+        .properties(p -> p.noOcclusion())
+        .blockstate((ctx, prov) -> {
+            prov.directionalBlock(ctx.get(), prov.models().getExistingFile(prov.modLoc("block/mounted_cannon")));
+        })
         .simpleItem()
         .register();;
     

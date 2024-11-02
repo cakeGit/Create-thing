@@ -4,14 +4,14 @@ import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import org.jetbrains.annotations.Nullable;
-import uk.cak.cpp.fabric.content.gimbal.actors.foundation.IGimbalActor;
 import uk.cak.cpp.fabric.registry.CppBlockEntities;
 
-public class MountedCannonBlock extends DirectionalBlock implements IGimbalActor, IBE<MountedCannonBlockEntity> {
+public class MountedCannonBlock extends DirectionalBlock implements IBE<MountedCannonBlockEntity> {
     
     public MountedCannonBlock(Properties properties) {
         super(properties);
@@ -37,6 +37,11 @@ public class MountedCannonBlock extends DirectionalBlock implements IGimbalActor
     @Override
     public BlockEntityType<? extends MountedCannonBlockEntity> getBlockEntityType() {
         return CppBlockEntities.MOUNTED_CANNON.get();
+    }
+    
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
     }
     
 }

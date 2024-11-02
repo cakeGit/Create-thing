@@ -1,14 +1,22 @@
 package uk.cak.cpp.fabric.content.gimbal.components.gimbal_axis;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.simibubi.create.AllPartialModels;
+import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
+import com.simibubi.create.foundation.render.CachedBufferer;
+import com.simibubi.create.foundation.render.SuperByteBuffer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class GimbalAxisRenderer extends SafeBlockEntityRenderer<GimbalAxisBlockEntity> {
+public class GimbalAxisRenderer extends KineticBlockEntityRenderer<GimbalAxisBlockEntity> {
+    
+    public GimbalAxisRenderer(BlockEntityRendererProvider.Context context) {
+        super(context);
+    }
     
     @Override
-    protected void renderSafe(GimbalAxisBlockEntity gimbalAxisBlockEntity, float v, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int i1) {
-    
+    protected SuperByteBuffer getRotatedModel(GimbalAxisBlockEntity be, BlockState state) {
+        return CachedBufferer.partialFacing(AllPartialModels.SHAFT_HALF, be.getBlockState(), state.getValue(DirectionalKineticBlock.FACING));
     }
     
 }

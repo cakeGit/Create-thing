@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "create_plus_plus:block/mounted_cannon",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "create_plus_plus:block/mounted_cannon",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "create_plus_plus:block/mounted_cannon",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "create_plus_plus:block/mounted_cannon",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "create_plus_plus:block/mounted_cannon"
+    },
+    "facing=west": {
+      "model": "create_plus_plus:block/mounted_cannon",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

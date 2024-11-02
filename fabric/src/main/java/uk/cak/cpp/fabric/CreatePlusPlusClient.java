@@ -8,6 +8,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import uk.cak.cpp.fabric.foundation.network.CppPackets;
 import uk.cak.cpp.fabric.system.projector.ProjectorRenderSystem;
 
 public class CreatePlusPlusClient implements ClientModInitializer {
@@ -16,6 +17,7 @@ public class CreatePlusPlusClient implements ClientModInitializer {
     
     @Override
     public void onInitializeClient() {
+        CppPackets.getChannel().initClientListener();
         FabricVeilPostProcessingEvent.PRE.register(CreatePlusPlusClient::onVeilPostProcessingRender);
         FabricVeilRendererEvent.EVENT.register(CreatePlusPlusClient::onClientSetup);
         ClientTickEvents.START_CLIENT_TICK.register(CreatePlusPlusClient::onClientTick);
