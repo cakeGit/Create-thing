@@ -15,6 +15,7 @@ public class CppBlockEntities {
     public static final BlockEntityEntry<ProjectorBlockEntity> PROJECTOR = REGISTRATE
         .blockEntity("projector", ProjectorBlockEntity::new)
         .validBlocks(CppBlocks.PROJECTOR)
+        .renderer(() -> GimbalActorBlockEntityRenderer::new)
         .register();
     
     

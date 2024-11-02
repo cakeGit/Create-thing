@@ -50,6 +50,7 @@ public class GimbalAxisBlockEntity extends KineticBlockEntity {
         if (candidate instanceof GimbalActorBlockEntity gabe) {
             if (gabe.attachToGimbal(this)) {
                 attachedTo = gabe;
+                attached = true;
             }
         }
     }
@@ -70,6 +71,10 @@ public class GimbalAxisBlockEntity extends KineticBlockEntity {
         return lastAxisRotation * (1 - pt) + axisRotation * pt;
     }
     
+    public float getAngle() {
+        return axisRotation;
+    }
+    
     public Direction getDirection() {
         return getBlockState().getValue(DirectionalKineticBlock.FACING);
     }
@@ -81,8 +86,12 @@ public class GimbalAxisBlockEntity extends KineticBlockEntity {
             attachedTo.invalidateAttachedGimbal(this);
     }
     
+    public Direction.Axis getAxis() {
+        return getDirection().getAxis();
+    }
+    
     public boolean isHorizontal() {
-        return getDirection().getAxis() != Direction.Axis.Y;
+        return getAxis() != Direction.Axis.Y;
     }
     
 }

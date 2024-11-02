@@ -9,8 +9,8 @@ void main() {
     vec4 original = texture(DiffuseSampler0, texCoord);
     vec4 lit = texture(ProjectorLightSampler, texCoord);
 
-    int radius = 15;
-    int step = 5;
+    int radius = 10;
+    int step = 10;
     vec4 totalColor = vec4(0f);
     float sum = 0;
 

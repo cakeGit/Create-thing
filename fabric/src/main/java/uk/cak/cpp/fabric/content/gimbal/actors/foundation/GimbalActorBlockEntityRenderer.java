@@ -3,7 +3,9 @@ package uk.cak.cpp.fabric.content.gimbal.actors.foundation;
 import com.jozufozu.flywheel.util.transform.TransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
+import com.simibubi.create.foundation.outliner.LineOutline;
 import com.simibubi.create.foundation.render.CachedBufferer;
+import com.simibubi.create.foundation.render.SuperRenderTypeBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -11,6 +13,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.phys.Vec3;
+import uk.cak.cpp.fabric.foundation.rope.RopeConnection;
+import uk.cak.cpp.fabric.foundation.rope.SimulatedRope;
 import uk.cak.cpp.fabric.registry.CppPartialModels;
 
 public class GimbalActorBlockEntityRenderer<T extends GimbalActorBlockEntity> extends SmartBlockEntityRenderer<T> {
@@ -22,6 +26,21 @@ public class GimbalActorBlockEntityRenderer<T extends GimbalActorBlockEntity> ex
     @Override
     protected void renderSafe(T blockEntity, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         super.renderSafe(blockEntity, partialTicks, ms, buffer, light, overlay);
+        
+        if (blockEntity.fluidConnectionVisuals == null && blockEntity.canHaveFluidInput()) {
+            blockEntity.fluidConnectionVisuals = new SimulatedRope();
+            blockEntity.buildFluidRope(blockEntity.fluidConnectionVisuals);
+            
+            for (RopeConnection connection : blockEntity.fluidConnectionVisuals.getConnections()) {
+                SuperRenderTypeBuffer superBuffer = SuperRenderTypeBuffer.getInstance();
+                LineOutline section = new LineOutline()
+                    .set(connection.getFrom().getPosition(partialTicks), connection.getTo().getPosition(partialTicks));
+                section
+                    .getParams()
+                    .lineWidth(2 / 16f);
+                section.render(ms, superBuffer, Vec3.ZERO, partialTicks);
+            }
+        }
         
         ms.pushPose();
         TransformStack stack = TransformStack.cast(ms);

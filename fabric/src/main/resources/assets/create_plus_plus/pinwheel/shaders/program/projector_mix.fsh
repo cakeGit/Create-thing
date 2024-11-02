@@ -16,5 +16,5 @@ vec4 saturate(vec4 colorRBGA) {
 void main() {
     vec4 lightColor = texture(ProjectorLightSampler, texCoord);
     vec4 original = texture(DiffuseSampler0, texCoord);
-    fragColor = lightColor * 0.2f + (saturate(original) * lightColor * 5f);
+    fragColor = lightColor * 0.5f + (saturate(original) * lightColor * 3f);
 }

@@ -83,7 +83,7 @@ void main() {
     vec2 projectorSpace = toProjectorDepthSpace(pos);
 
     fragColor = original;
-    if (isInProjectionSpace(projectorSpace) && dot(direction, normalize(pos - origin)) > 0.0f) {
+    if (isInProjectionSpace(projectorSpace)) {
         float distanceFromOrigin = length(pos - origin);
         if (distanceFromOrigin > ProjectorPlaneFar) return;
 

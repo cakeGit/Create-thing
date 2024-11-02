@@ -19,4 +19,10 @@ public class MountedCannonBlockEntity extends GimbalActorBlockEntity {
     
     }
     
+    @Override
+    public boolean canHaveFluidInput() {
+        return true;
+    }
+    
+    
 }

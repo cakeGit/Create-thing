@@ -14,6 +14,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import uk.cak.cpp.fabric.CreatePlusPlus;
 
 import java.util.*;
@@ -122,8 +123,9 @@ public class ProjectorRenderSystem {
         shader.setVector("origin",
             (float) instance.renderInfo.origin.x,
             (float) instance.renderInfo.origin.y,
-            (float) instance.renderInfo.origin.z);
-        shader.setVector("direction", 1f, 0f, 0f);
+            (float) instance.renderInfo.origin.z
+        );
+        shader.setVector("direction", instance.renderInfo.direction.transform(new Vector3f(0, 0, -1)));
         Window window = Minecraft.getInstance().getWindow();
         shader.setFloat("BaseAspect", (float) window.getWidth() / window.getHeight());
         

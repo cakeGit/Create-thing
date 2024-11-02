@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -67,7 +68,11 @@ public class GimbalAxisBlock extends DirectionalKineticBlock implements IBE<Gimb
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        if (level.getBlockState(neighborPos).is(AllBlocks.FLUID_PIPE.get())) {
+        BlockEntity be = level.getBlockEntity(pos);
+        
+        if (!(be instanceof GimbalAxisBlockEntity gabe)) return;
+        
+        if (level.getBlockState(neighborPos).is(AllBlocks.FLUID_PIPE.get()) && gabe.attached && gabe.attachedTo.acceptsIncomingFluidMount()) {
             Direction mountDirection = Direction.UP;
             for (Direction direction : Iterate.directions) {
                 BlockPos checkPos = neighborPos.relative(direction);
@@ -83,6 +88,7 @@ public class GimbalAxisBlock extends DirectionalKineticBlock implements IBE<Gimb
                     .setValue(DirectionalBlock.FACING, mountDirection.getOpposite())
             );
             CppParticleEmitters.PIPE_MOUNTED.emitToClients((ServerLevel) level, Vec3.atCenterOf(neighborPos).add(0, 0.4, 0), 4);
+            gabe.attachedTo.setIncomingFluidMount(neighborPos);
         }
     }
     
