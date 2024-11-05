@@ -62,7 +62,10 @@ public class ProjectorBlockEntity extends GimbalActorBlockEntity {
         }
         
         renderer.setDirection(rotation);
-        renderer.setColor(new Vector3f(0.2f, 0.2f, 0.3f));
+        renderer.setColor(new Vector3f(0.8f, 0.2f, 0.1f));
+//        int angleAnimTicks = AnimationTickHolder.getTicks();
+//        angleAnimTicks = angleAnimTicks % 20;
+//        renderer.setAngle(1f / angleAnimTicks);
     }
     private double getRotationOfDirection(Direction direction) {
         switch (direction) {

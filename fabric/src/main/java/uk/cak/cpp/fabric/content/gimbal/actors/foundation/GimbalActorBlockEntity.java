@@ -10,13 +10,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import uk.cak.cpp.fabric.content.gimbal.components.fluid_mount.GimbalFluidMountBlockEntity;
 import uk.cak.cpp.fabric.content.gimbal.components.gimbal_axis.GimbalAxisBlockEntity;
-import uk.cak.cpp.fabric.foundation.rope.RopeNode;
-import uk.cak.cpp.fabric.foundation.rope.SimulatedRope;
+import uk.cak.cpp.fabric.content.gimbal.components.mounts.foundation.GimbalActorConnection;
+import uk.cak.cpp.fabric.content.gimbal.components.mounts.foundation.GimbalActorConnectionType;
+import uk.cak.cpp.fabric.content.gimbal.components.mounts.foundation.GimbalMountBlockEntity;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
     
@@ -26,16 +29,19 @@ public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
     @Nullable
     protected GimbalAxisBlockEntity verticalGimbal = null;
     
-    boolean hasFluidConnection = false;
-    @Nullable
-    GimbalFluidMountBlockEntity fluidMount = null;
-    BlockPos incomingFluidMount = null;
-    BlockPos fluidMountPos = null;
-    /**
-     * Client / renderer only
-     */
-    @Nullable
-    SimulatedRope fluidConnectionVisuals = null;
+    List<BlockPos> incomingConnectionPositions = new ArrayList<>();
+    HashMap<BlockPos, GimbalActorConnection> connections = new HashMap<>();
+    
+//    boolean hasFluidConnection = false;
+//    @Nullable
+//    GimbalFluidMountBlockEntity fluidMount = null;
+//    BlockPos incomingFluidMount = null;
+//    BlockPos fluidMountPos = null;
+//    /**
+//     * Client / renderer only
+//     */
+//    @Nullable
+//    SimulatedRope fluidConnectionVisuals = null;
     
     public GimbalActorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -44,62 +50,51 @@ public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
     @Override
     public void tick() {
         super.tick();
-        if (incomingFluidMount != null && !level.isClientSide) {
-            BlockEntity be = level.getBlockEntity(incomingFluidMount);
+        for (BlockPos pos : incomingConnectionPositions) {
+            BlockEntity be = level.getBlockEntity(pos);
             
-            if (be instanceof GimbalFluidMountBlockEntity fluidMountBe) {
-                fluidMount = fluidMountBe;
-                hasFluidConnection = true;
-                fluidMountPos = incomingFluidMount;
-                sendData();
-            }
-            
-            incomingFluidMount = null;
-        }
-        
-        if (fluidMountPos != null && level.isClientSide) {
-            BlockEntity be = level.getBlockEntity(fluidMountPos);
-            
-            if (be instanceof GimbalFluidMountBlockEntity fluidMountBe) {
-                fluidMount = fluidMountBe;
-                hasFluidConnection = true;
-                sendData();
+            if (be instanceof GimbalMountBlockEntity gimbalMountBlockEntity) {
+                GimbalActorConnection actorConnection = new GimbalActorConnection(gimbalMountBlockEntity, this);
+                connections.put(actorConnection.getOffset(), actorConnection);
             }
         }
+        incomingConnectionPositions = new ArrayList<>();
         
-        if (fluidConnectionVisuals != null) {
-            fluidConnectionVisuals.simulate();
-            updateFluidRopeAttachmentPositions(fluidConnectionVisuals);
+        List<BlockPos> expired = new ArrayList<>();
+        for (Map.Entry<BlockPos, GimbalActorConnection> entry : connections.entrySet()) {
+            boolean remove = entry.getValue().tickState(this, level);
+            if (remove) expired.add(entry.getKey());
         }
-    }
-    
-    protected void updateFluidRopeAttachmentPositions(SimulatedRope fluidConnectionVisuals) {
-        RopeNode first = fluidConnectionVisuals.getNode(0);
-        first.setPosition(getFluidAttachmentPos());
-        
-        RopeNode last = fluidConnectionVisuals.getLastNode();
-        last.setPosition(getFluidMountPos());
+        for (BlockPos pos : expired) {
+            connections.remove(pos);
+        }
     }
     
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
-        if (fluidMountPos != null) {
-            tag.putInt("fluidMountPosX", fluidMountPos.getX());
-            tag.putInt("fluidMountPosY", fluidMountPos.getY());
-            tag.putInt("fluidMountPosZ", fluidMountPos.getZ());
+        tag.putInt("ConnectionsSize", connections.size());
+        for (int i = 0; i < connections.size(); i++) {
+            tag.put("Connections" + i, connections.get(i).write());
         }
     }
     
     @Override
     protected void read(CompoundTag tag, boolean clientPacket) {
         super.read(tag, clientPacket);
-        if (tag.contains("fluidMountPosX")) {
-            fluidMountPos = new BlockPos(
-                tag.getInt("fluidMountPosX"),
-                tag.getInt("fluidMountPosY"),
-                tag.getInt("fluidMountPosZ")
-            );
+        if (tag.contains("ConnectionsSize")) {
+            int size = tag.getInt("ConnectionsSize");
+            List<GimbalActorConnection> readConnections = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                CompoundTag connectionTag = tag.getCompound("Connections" + i);
+                readConnections.add(new GimbalActorConnection(connectionTag));
+            }
+            
+            for (GimbalActorConnection connection : readConnections) {
+                if (!connections.containsKey(connection.getOffset())) {
+                    connections.put(connection.getOffset(), connection);
+                }
+            }
         }
     }
     
@@ -131,47 +126,77 @@ public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
         }
     }
     
-    public void buildFluidRope(SimulatedRope fluidAttachmentSimulator) {
-        fluidAttachmentSimulator.buildRope(10, getFluidAttachmentPos(), getFluidMountPos(), 2 / 16f);
-    }
-    
-    private Vec3 getFluidAttachmentPos() {
-        Vec3 pos = Vec3.atLowerCornerOf(getBlockState().getValue(DirectionalBlock.FACING).getNormal());
-        pos = pos.scale(0.5);
+    private Vec3 localToWorld(Vec3 local) {
+        Vec3 world = local;
+        world.yRot(-(float) Math.toRadians(getRotationOfDirection(getBlockState().getValue(DirectionalBlock.FACING))));
+        world = world.scale(0.5);
         
         if (horizontalGimbal != null) {
             if (horizontalGimbal.getAxis() == Direction.Axis.X) {
-                pos = pos.xRot(-(float) Math.toRadians(horizontalGimbal.getAngle()));
+                world = world.xRot(-(float) Math.toRadians(horizontalGimbal.getAngle()));
             } else if (horizontalGimbal.getAxis() == Direction.Axis.Z) {
-                pos = pos.zRot(-(float) Math.toRadians(horizontalGimbal.getAngle()));
+                world = world.zRot(-(float) Math.toRadians(horizontalGimbal.getAngle()));
             }
         }
         
         if (verticalGimbal != null) {
-            pos = pos.yRot(-(float) Math.toRadians(verticalGimbal.getAngle()));
+            world = world.yRot(-(float) Math.toRadians(verticalGimbal.getAngle()));
         }
         
-        return pos.add(0.5, 0.5, 0.5);
+        return world.add(0.5, 0.5, 0.5);
     }
     
-    private Vec3 getFluidMountPos() {
-        return hasFluidConnection ?
-            fluidMount.getBlockPos().getCenter().add(
-                Vec3.atLowerCornerOf(fluidMount.getBlockState().getValue(DirectionalBlock.FACING).getOpposite().getNormal())
-                    .scale(2/16f)
-                    .subtract(Vec3.atLowerCornerOf(getBlockPos()))
-            )
-            : new Vec3(1, 1, 1);
+    public void acceptIncomingMount(BlockPos mountBlockEntity) {
+        incomingConnectionPositions.add(mountBlockEntity);
     }
     
-    public void setIncomingFluidMount(BlockPos neighborPos) {
-        incomingFluidMount = neighborPos;
+    private float getRotationOfDirection(Direction direction) {
+        switch (direction) {
+            case NORTH -> {
+                return 0;
+            }
+            case WEST -> {
+                return 90;
+            }
+            case SOUTH -> {
+                return 180;
+            }
+            case EAST -> {
+                return 270;
+            }
+        }
+        return -1;
     }
     
-    public boolean acceptsIncomingFluidMount() {
-        return !hasFluidConnection && incomingFluidMount == null && canHaveFluidInput();
+//    private Vec3 getFluidMountPos() {
+//        return hasFluidConnection ?
+//            fluidMount.getBlockPos().getCenter().add(
+//                Vec3.atLowerCornerOf(fluidMount.getBlockState().getValue(DirectionalBlock.FACING).getOpposite().getNormal())
+//                    .scale(2/16f)
+//                    .subtract(Vec3.atLowerCornerOf(getBlockPos()))
+//            )
+//            : new Vec3(1, 1, 1);
+//    }
+    
+//    public void setIncomingFluidMount(BlockPos neighborPos) {
+//        incomingFluidMount = neighborPos;
+//    }
+    
+    public boolean acceptsIncomingMount(GimbalActorConnectionType connectionType) {
+        return true;
     }
     
     public abstract boolean canHaveFluidInput();
+    
+    public Vec3 getAttachmentPosForType(GimbalActorConnectionType connectionType) {
+        switch (connectionType) {
+            case FLUID -> {
+                return localToWorld(new Vec3(1, 0, 0));
+            }
+            case ITEM -> {}
+            case SIGNAL -> {}
+        }
+        return new Vec3(0, 0, 0);
+    }
     
 }

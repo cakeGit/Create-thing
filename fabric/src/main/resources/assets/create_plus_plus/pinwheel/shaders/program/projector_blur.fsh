@@ -3,10 +3,17 @@ in vec2 texCoord;
 
 uniform sampler2D DiffuseSampler0;
 uniform sampler2D ProjectorLightSampler;
+uniform int ProjectorsEnabled;
 uniform vec2 InSize;
 
 void main() {
     vec4 original = texture(DiffuseSampler0, texCoord);
+
+    if (ProjectorsEnabled == 0) {
+        fragColor = original;
+        return;
+    }
+
     vec4 lit = texture(ProjectorLightSampler, texCoord);
 
     int radius = 10;

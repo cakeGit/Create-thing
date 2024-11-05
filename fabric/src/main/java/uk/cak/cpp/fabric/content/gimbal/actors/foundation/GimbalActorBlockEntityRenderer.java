@@ -8,18 +8,19 @@ import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.foundation.render.SuperRenderTypeBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.phys.Vec3;
+import uk.cak.cpp.fabric.content.gimbal.components.mounts.foundation.GimbalActorConnection;
 import uk.cak.cpp.fabric.foundation.rope.RopeConnection;
 import uk.cak.cpp.fabric.foundation.rope.SimulatedRope;
+import uk.cak.cpp.fabric.foundation.rope.SimulatedRopeTypes;
 import uk.cak.cpp.fabric.registry.CppPartialModels;
 
 public class GimbalActorBlockEntityRenderer<T extends GimbalActorBlockEntity> extends SmartBlockEntityRenderer<T> {
     
-    public GimbalActorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public GimbalActorBlockEntityRenderer(net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context context) {
         super(context);
     }
     
@@ -27,11 +28,37 @@ public class GimbalActorBlockEntityRenderer<T extends GimbalActorBlockEntity> ex
     protected void renderSafe(T blockEntity, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         super.renderSafe(blockEntity, partialTicks, ms, buffer, light, overlay);
         
-        if (blockEntity.fluidConnectionVisuals == null && blockEntity.canHaveFluidInput()) {
-            blockEntity.fluidConnectionVisuals = new SimulatedRope();
-            blockEntity.buildFluidRope(blockEntity.fluidConnectionVisuals);
+        TransformStack stack = TransformStack.cast(ms);
+        for (GimbalActorConnection connection : blockEntity.connections.values()) {
+            if (connection.getMountBlockEntity() == null) continue;
+            if (connection.getConnectionVisuals() == null) {
+                SimulatedRope newRope = new SimulatedRope();
+                SimulatedRopeTypes.buildRopeForConnectionType(blockEntity, connection.getMountBlockEntity(), newRope, connection.getMountBlockEntity().getMountType());
+                connection.setConnectionVisuals(newRope);
+            }
+        }
+        for (GimbalActorConnection mountConnection : blockEntity.connections.values()) {
+            if (mountConnection.getConnectionVisuals() == null) continue;
             
-            for (RopeConnection connection : blockEntity.fluidConnectionVisuals.getConnections()) {
+            SimulatedRope rope = mountConnection.getConnectionVisuals();
+            
+            for (RopeConnection connection : rope.getConnections()) {
+                Vec3 from = connection.getFrom().getPosition(partialTicks);
+                Vec3 to = connection.getTo().getPosition(partialTicks);
+                
+                Vec3 diff = to.subtract(from);
+                double yRot = Math.atan2(diff.x, diff.z);
+                double zRot = -Math.atan2(diff.y, Math.sqrt(diff.x * diff.x + diff.z * diff.z));
+                
+                ms.pushPose();
+                
+                ms.translate(to.x, to.y, to.z);
+                stack.rotateY(Math.toDegrees(yRot) + 90);
+                stack.rotateZ(Math.toDegrees(zRot));
+                CachedBufferer.partial(CppPartialModels.GIMBAL_FLUID_PIPE_SECTION, blockEntity.getBlockState())
+                    .renderInto(ms, buffer.getBuffer(RenderType.solid()));
+                
+                ms.popPose();
                 SuperRenderTypeBuffer superBuffer = SuperRenderTypeBuffer.getInstance();
                 LineOutline section = new LineOutline()
                     .set(connection.getFrom().getPosition(partialTicks), connection.getTo().getPosition(partialTicks));
@@ -40,10 +67,10 @@ public class GimbalActorBlockEntityRenderer<T extends GimbalActorBlockEntity> ex
                     .lineWidth(2 / 16f);
                 section.render(ms, superBuffer, Vec3.ZERO, partialTicks);
             }
+            
         }
         
         ms.pushPose();
-        TransformStack stack = TransformStack.cast(ms);
         if (blockEntity.horizontalGimbal != null && blockEntity.verticalGimbal != null) {
             BlockPos secondaryRelative = blockEntity.horizontalGimbal.getBlockPos().subtract(blockEntity.getBlockPos())
                 .offset(blockEntity.verticalGimbal.getBlockPos().subtract(blockEntity.getBlockPos()));

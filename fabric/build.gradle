@@ -32,6 +32,9 @@ repositories {
         name = 'BlameJared Maven (CrT / Bookshelf)'
         url = 'https://maven.blamejared.com'
     }
+    maven {
+        url "https://maven.squiddev.cc"
+    }
 }
 
 configurations.configureEach {
@@ -73,6 +76,12 @@ dependencies {
 //    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${rei_version}")
 //    modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${rei_version}")
 //    modCompileOnly("dev.emi:emi:${emi_version}")
+    // Vanilla (i.e. for multi-loader systems)
+    compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-common-api:$cctVersion")
+
+    // Fabric Loom
+    modCompileOnly("cc.tweaked:cc-tweaked-$minecraft_version-fabric-api:$cctVersion")
+    modRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-fabric:$cctVersion")
 }
 
 processResources {

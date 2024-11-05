@@ -72,7 +72,7 @@ public class GimbalAxisBlock extends DirectionalKineticBlock implements IBE<Gimb
         
         if (!(be instanceof GimbalAxisBlockEntity gabe)) return;
         
-        if (level.getBlockState(neighborPos).is(AllBlocks.FLUID_PIPE.get()) && gabe.attached && gabe.attachedTo.acceptsIncomingFluidMount()) {
+        if (level.getBlockState(neighborPos).is(AllBlocks.FLUID_PIPE.get()) && gabe.attached) {
             Direction mountDirection = Direction.UP;
             for (Direction direction : Iterate.directions) {
                 BlockPos checkPos = neighborPos.relative(direction);
@@ -87,8 +87,8 @@ public class GimbalAxisBlock extends DirectionalKineticBlock implements IBE<Gimb
                     .getDefaultState()
                     .setValue(DirectionalBlock.FACING, mountDirection.getOpposite())
             );
-            CppParticleEmitters.PIPE_MOUNTED.emitToClients((ServerLevel) level, Vec3.atCenterOf(neighborPos).add(0, 0.4, 0), 4);
-            gabe.attachedTo.setIncomingFluidMount(neighborPos);
+            CppParticleEmitters.CONNECTION_MOUNTED.emitToClients((ServerLevel) level, Vec3.atCenterOf(neighborPos).add(0, 0.4, 0), 4);
+            gabe.attachedTo.acceptIncomingMount(neighborPos);
         }
     }
     

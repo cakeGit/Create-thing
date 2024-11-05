@@ -13,7 +13,7 @@ public class CppParticleEmitters {
     public static final HashMap<Integer, ParticleEmitter> INSTANCES_BY_HASH = new HashMap<>();
     
     public static final ParticleEmitter
-        PIPE_MOUNTED = registerInstance(new ParticleEmitter(ParticleTypes.CLOUD)
+        CONNECTION_MOUNTED = registerInstance(new ParticleEmitter(ParticleTypes.CLOUD)
         .setEmitFromCenterStrength(new Vec3(0.1f, 0.1f, 0.1f))
         .setRandomVelocityStrength(0.05f)
         .setVolume(new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5)));

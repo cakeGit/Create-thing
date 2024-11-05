@@ -3,6 +3,7 @@ in vec2 texCoord;
 
 uniform sampler2D DiffuseSampler0;
 uniform sampler2D ProjectorLightSampler;
+uniform int ProjectorsEnabled;
 
 vec4 saturate(vec4 colorRBGA) {
     vec3 colorRGB = colorRBGA.rgb;
@@ -14,7 +15,12 @@ vec4 saturate(vec4 colorRBGA) {
 }
 
 void main() {
-    vec4 lightColor = texture(ProjectorLightSampler, texCoord);
     vec4 original = texture(DiffuseSampler0, texCoord);
-    fragColor = lightColor * 0.5f + (saturate(original) * lightColor * 3f);
+    if (ProjectorsEnabled == 0) {
+        fragColor = original;
+        return;
+    }
+
+    vec4 lightColor = texture(ProjectorLightSampler, texCoord);
+    fragColor = lightColor * 0.1f + (saturate(original) * lightColor * 1f);
 }

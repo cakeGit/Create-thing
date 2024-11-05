@@ -8,6 +8,7 @@ uniform sampler2D ProjectionResults;
 
 in vec2 texCoord;
 
+uniform vec3 ProjectorColor;
 uniform vec3 origin;
 uniform vec3 direction;
 
@@ -21,6 +22,7 @@ uniform mat4 DepthMat;
 uniform mat4 DepthModelMat;
 
 uniform vec2 projectorOneTexel;
+uniform float GameTime;
 
 out vec4 fragColor;
 
@@ -69,6 +71,10 @@ vec3 projectorViewToWorldSpace(vec3 positionVS) {
     return origin + positionVS;
 }
 
+vec2 mod2(vec2 a, vec2 b) {
+    return vec2(mod(a.x, b.x), mod(a.y, b.y));
+}
+
 uniform int ShouldMix;
 
 void main() {
@@ -83,7 +89,7 @@ void main() {
     vec2 projectorSpace = toProjectorDepthSpace(pos);
 
     fragColor = original;
-    if (isInProjectionSpace(projectorSpace)) {
+    if (isInProjectionSpace(projectorSpace) && dot(direction, pos - origin) > 0) {
         float distanceFromOrigin = length(pos - origin);
         if (distanceFromOrigin > ProjectorPlaneFar) return;
 
@@ -104,7 +110,8 @@ void main() {
         }
 
         float strength;
-        if (difference < 0) {
+
+        if (difference < 0.1) {
             if (!fullOcclusion) {
                 difference /= 100;
             } else {
@@ -118,9 +125,10 @@ void main() {
         }
         strength *= 100;
         strength /= distanceFromOrigin;
+        strength *= 1f-distanceScaled;
 
         if (strength > 0f) {
-            fragColor = max(original, original + (vec4(0.04f, 0.02f, 0.1f, 1.0f) * strength));
+            fragColor = max(original, original + (vec4(ProjectorColor, 1.0f) * strength));
         }
     }
 }

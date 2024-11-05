@@ -70,6 +70,8 @@ public class ProjectorRenderSystem {
     public void onPostProcessing(ResourceLocation name, PostPipeline pipeline, PostPipeline.Context context) {
         if (!name.equals(CreatePlusPlus.asResource("projector"))) return;
         
+        boolean enabled = !projectorInstances.isEmpty();
+        
         Minecraft mc = Minecraft.getInstance();
         Options options = mc.options;
         int renderDist = options.renderDistance().get() << 4;
@@ -108,11 +110,13 @@ public class ProjectorRenderSystem {
         ShaderProgram mixShader = VeilRenderSystem.setShader(CreatePlusPlus.asResource("projector_mix"));
         AdvancedFbo projector_results = framebufferManager.getFramebuffer(PROJECTOR_RESULTS);
         if (mixShader != null) {
+            mixShader.setInt("ProjectorsEnabled", enabled ? 1 : 0);
             mixShader.addSampler("ProjectorLightSampler", projector_results.getColorTextureAttachment(0).getId());
         }
         ShaderProgram blurShader = VeilRenderSystem.setShader(CreatePlusPlus.asResource("projector_blur"));
         AdvancedFbo projector_final_results = framebufferManager.getFramebuffer(PROJECTOR_FINAL_RESULTS);
         if (blurShader != null) {
+            blurShader.setInt("ProjectorsEnabled", enabled ? 1 : 0);
             blurShader.addSampler("ProjectorLightSampler", projector_final_results.getColorTextureAttachment(0).getId());
         }
     }
@@ -121,21 +125,22 @@ public class ProjectorRenderSystem {
         shader.setInt("ShouldMix", first ? 0 : 1);
         
         shader.setVector("origin",
-            (float) instance.renderInfo.origin.x,
-            (float) instance.renderInfo.origin.y,
-            (float) instance.renderInfo.origin.z
+            (float) instance.renderInfo.lastRenderedOrigin.x,
+            (float) instance.renderInfo.lastRenderedOrigin.y,
+            (float) instance.renderInfo.lastRenderedOrigin.z
         );
-        shader.setVector("direction", instance.renderInfo.direction.transform(new Vector3f(0, 0, -1)));
+        shader.setVector("ProjectorColor", instance.renderInfo.color);
+        shader.setVector("direction", instance.renderInfo.lastRenderedDirection.transform(new Vector3f(0, 0, -1)));
         Window window = Minecraft.getInstance().getWindow();
         shader.setFloat("BaseAspect", (float) window.getWidth() / window.getHeight());
         
-        Matrix4f transform = new Matrix4f(instance.getRenderInfo().viewTransform).rotate(instance.getRenderInfo().direction);
+        Matrix4f transform = new Matrix4f(instance.getRenderInfo().lastViewTransform).rotate(instance.getRenderInfo().lastRenderedDirection);
         shader.setMatrix("DepthMat", transform);
         
         shader.setFloat("ProjectorPlaneNear", 0.1f);
         shader.setFloat("ProjectorPlaneFar", 64f);
         
-        shader.setVector("projectorOneTexel", 2 / 1024f, 2 / 1024f);
+        shader.setVector("projectorOneTexel", 1 / 1024f, 1 / 1024f);
         
         shader.addSampler("ProjectionDepthSampler", instance.getRenderInfo().getTextureInstance().getId());
         shader.addSampler("ProjectionResults", outMix.getColorTextureAttachment(0).getId());
@@ -168,6 +173,7 @@ public class ProjectorRenderSystem {
             ProjectorInstance toRender = instances.get(nextIndexToRender);
             if (toRender.shouldRender(mc.cameraEntity.getEyePosition(), renderDistSquared)) {
                 renderDepthForInstance(toRender, partialTicks);
+                toRender.renderInfo.setPropertiesAsLastRendered();
             }
         }
     }
@@ -188,7 +194,7 @@ public class ProjectorRenderSystem {
         VeilLevelPerspectiveRenderer.render(
             out,
             modelView,
-            renderer.getViewTransform(),
+            renderer.buildViewTransform(),
             renderer.origin,
             renderer.direction,
             64f,
