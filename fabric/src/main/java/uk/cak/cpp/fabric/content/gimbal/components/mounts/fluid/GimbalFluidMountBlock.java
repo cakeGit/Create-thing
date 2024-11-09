@@ -1,4 +1,4 @@
-package uk.cak.cpp.fabric.content.gimbal.components.fluid_mount;
+package uk.cak.cpp.fabric.content.gimbal.components.mounts.fluid;
 
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.world.level.block.Block;

@@ -3,7 +3,7 @@ package uk.cak.cpp.fabric.registry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import uk.cak.cpp.fabric.content.gimbal.actors.mounted_cannon.MountedCannonBlock;
 import uk.cak.cpp.fabric.content.gimbal.actors.projector.ProjectorBlock;
-import uk.cak.cpp.fabric.content.gimbal.components.fluid_mount.GimbalFluidMountBlock;
+import uk.cak.cpp.fabric.content.gimbal.components.mounts.fluid.GimbalFluidMountBlock;
 import uk.cak.cpp.fabric.content.gimbal.components.gimbal_axis.GimbalAxisBlock;
 
 import static uk.cak.cpp.fabric.CreatePlusPlus.REGISTRATE;

@@ -4,7 +4,7 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import uk.cak.cpp.fabric.content.gimbal.actors.foundation.GimbalActorBlockEntityRenderer;
 import uk.cak.cpp.fabric.content.gimbal.actors.mounted_cannon.MountedCannonBlockEntity;
 import uk.cak.cpp.fabric.content.gimbal.actors.projector.ProjectorBlockEntity;
-import uk.cak.cpp.fabric.content.gimbal.components.fluid_mount.GimbalFluidMountBlockEntity;
+import uk.cak.cpp.fabric.content.gimbal.components.mounts.fluid.GimbalFluidMountBlockEntity;
 import uk.cak.cpp.fabric.content.gimbal.components.gimbal_axis.GimbalAxisBlockEntity;
 import uk.cak.cpp.fabric.content.gimbal.components.gimbal_axis.GimbalAxisRenderer;
 

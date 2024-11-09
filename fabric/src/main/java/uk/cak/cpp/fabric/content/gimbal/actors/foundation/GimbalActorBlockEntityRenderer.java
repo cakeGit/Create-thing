@@ -13,7 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.phys.Vec3;
 import uk.cak.cpp.fabric.content.gimbal.components.mounts.foundation.GimbalActorConnection;
-import uk.cak.cpp.fabric.foundation.rope.RopeConnection;
+import uk.cak.cpp.fabric.foundation.rope.RopeDistanceConnection;
 import uk.cak.cpp.fabric.foundation.rope.SimulatedRope;
 import uk.cak.cpp.fabric.foundation.rope.SimulatedRopeTypes;
 import uk.cak.cpp.fabric.registry.CppPartialModels;
@@ -42,7 +42,7 @@ public class GimbalActorBlockEntityRenderer<T extends GimbalActorBlockEntity> ex
             
             SimulatedRope rope = mountConnection.getConnectionVisuals();
             
-            for (RopeConnection connection : rope.getConnections()) {
+            for (RopeDistanceConnection connection : rope.getConnections()) {
                 Vec3 from = connection.getFrom().getPosition(partialTicks);
                 Vec3 to = connection.getTo().getPosition(partialTicks);
                 

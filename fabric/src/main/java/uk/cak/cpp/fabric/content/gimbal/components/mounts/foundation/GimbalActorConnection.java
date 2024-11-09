@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import uk.cak.cpp.fabric.content.gimbal.actors.foundation.GimbalActorBlockEntity;
 import uk.cak.cpp.fabric.foundation.rope.SimulatedRope;
 
@@ -32,7 +33,7 @@ public class GimbalActorConnection {
      * @return If the connection should be removed
      * */
     public boolean tickState(GimbalActorBlockEntity owner, Level level) {
-        if (target.isRemoved()) {
+        if (target != null && target.isRemoved()) {
             return true;
         }
         
@@ -83,6 +84,14 @@ public class GimbalActorConnection {
     
     public GimbalMountBlockEntity getMountBlockEntity() {
         return target;
+    }
+    
+    public void updatePositions(GimbalActorBlockEntity gimbalActorBlockEntity) {
+        if (connectionVisuals == null || target == null) return;
+        connectionVisuals.simulate();
+        connectionVisuals.getNode(0).setPosition(target.getMountWorldPos().add(Vec3.atLowerCornerOf(offset)));
+//        connectionVisuals.getLastNode().setPosition(target.getMountWorldPos().add(Vec3.atLowerCornerOf(offset)));
+        connectionVisuals.getLastNode().setPosition(gimbalActorBlockEntity.getAttachmentPosForType(target.getMountType()));
     }
     
 }

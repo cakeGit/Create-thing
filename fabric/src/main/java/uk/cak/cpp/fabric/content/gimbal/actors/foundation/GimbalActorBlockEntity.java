@@ -56,26 +56,34 @@ public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
             if (be instanceof GimbalMountBlockEntity gimbalMountBlockEntity) {
                 GimbalActorConnection actorConnection = new GimbalActorConnection(gimbalMountBlockEntity, this);
                 connections.put(actorConnection.getOffset(), actorConnection);
+                sendData();
             }
         }
         incomingConnectionPositions = new ArrayList<>();
         
         List<BlockPos> expired = new ArrayList<>();
         for (Map.Entry<BlockPos, GimbalActorConnection> entry : connections.entrySet()) {
-            boolean remove = entry.getValue().tickState(this, level);
-            if (remove) expired.add(entry.getKey());
+            boolean shouldRemove = entry.getValue().tickState(this, level);
+            if (shouldRemove) expired.add(entry.getKey());
         }
         for (BlockPos pos : expired) {
             connections.remove(pos);
+        }
+        
+        if (level.isClientSide) {
+            for (GimbalActorConnection connection : connections.values()) {
+                connection.updatePositions(this);
+            }
         }
     }
     
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
-        tag.putInt("ConnectionsSize", connections.size());
-        for (int i = 0; i < connections.size(); i++) {
-            tag.put("Connections" + i, connections.get(i).write());
+        List<GimbalActorConnection> connectionValues = connections.values().stream().toList();
+        tag.putInt("ConnectionsSize", connectionValues.size());
+        for (int i = 0; i < connectionValues.size(); i++) {
+            tag.put("Connections" + i, connectionValues.get(i).write());
         }
     }
     
@@ -129,7 +137,6 @@ public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
     private Vec3 localToWorld(Vec3 local) {
         Vec3 world = local;
         world.yRot(-(float) Math.toRadians(getRotationOfDirection(getBlockState().getValue(DirectionalBlock.FACING))));
-        world = world.scale(0.5);
         
         if (horizontalGimbal != null) {
             if (horizontalGimbal.getAxis() == Direction.Axis.X) {
@@ -191,7 +198,7 @@ public abstract class GimbalActorBlockEntity extends SmartBlockEntity {
     public Vec3 getAttachmentPosForType(GimbalActorConnectionType connectionType) {
         switch (connectionType) {
             case FLUID -> {
-                return localToWorld(new Vec3(1, 0, 0));
+                return localToWorld(new Vec3(-0.5, 0, 0));
             }
             case ITEM -> {}
             case SIGNAL -> {}
